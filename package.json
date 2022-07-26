@@ -1,0 +1,32 @@
+{
+  "name": "-b-tienda_v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "connect-multiparty": "^2.2.0",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-flash-notification": "^0.5.0",
+    "express-session": "^1.17.3",
+    "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.3.3",
+    "passport": "^0.6.0",
+    "password-hash": "^1.2.2",
+    "request": "^2.88.2",
+    "sequelize": "^6.21.2",
+    "sequelize-cli": "^6.4.1"
+  }
+}
