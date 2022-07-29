@@ -256,45 +256,32 @@ ProductosController.post('/agendar-pedido', async (req, res) => {
         console.error(err);
     }
 });
-ProductosController.get('/add-cart/:id/:cant', async (req, res) => {
+ProductosController.post('/add-cart', async (req, res) => {
     try {
-        if (req.session.cart == undefined) {
-            req.session.cart = []
+        let productos = req.body.product
+        let cart = req.body.cart
+        let total
+        productos.forEach(producto => {
+            if (cart.find(e => e.id == producto.id)) {
+                cart.forEach(p => {
+                    if (p.id == producto.id) {
+                        p.cant = p.cant + producto.cant;
+                        p.total = p.precio * p.cant
+                    }
+                })
+            } else {
+                cart.push({
+                    "id": producto.id,
+                    "nombre": producto.nombre,
+                    /*  "img": prod.Imagenes[0].nombre, */
+                    "cant": producto.cant,
+                    "precio": producto.precio,
+                    "total": producto.precio * producto.cant,
+                })
+            }
+        })
 
-        }
-        let id = req.params.id
-        let cant = parseInt(req.params.cant)
-        let producto = []
-        //productos.forEach(producto => {
-
-        if (req.session.cart.find(e => e.id == id)) {
-            req.session.cart.forEach(p => {
-                if (p.id == id) {
-                    p.cant = p.cant + cant;
-                    p.total = p.precio * p.cant
-                }
-            })
-            req.session.save()
-        } else {
-            let prod = await db.Productos.findByPk(id, { include: [{ model: db.Imagenes }] })
-
-            req.session.cart.push({
-                "id": prod.id,
-                "nombre": prod.nombre,
-                /*  "img": prod.Imagenes[0].nombre, */
-                "cant": cant,
-                "precio": prod.p_venta,
-                "total": prod.p_venta * cant,
-
-
-            })
-            req.session.save()
-        }
-        // })
-        console.log(req.session.cart)
-        res.json({ success: true, message: "agregado" });
-
-
+        res.json({ success: true, message: "agregado", cart: cart });
     } catch (error) {
         console.log(error)
         res.json(error)
@@ -302,13 +289,12 @@ ProductosController.get('/add-cart/:id/:cant', async (req, res) => {
 })
 ProductosController.post('/delete-cart', async (req, res) => {
     try {
-        let producto_id = req.body.producto
-
-        req.session.cart = req.session.cart.filter(function (p) {
-            return p.id !== producto_id;
+        let cart = req.body.carrito
+        let id = req.body.id
+        cart = cart.filter(function (p) {
+            return p.id !== id;
         });
-
-        res.json({ response: "Producto quitado" })
+        res.json({ response: "Producto quitado", cart: cart })
 
     } catch (error) {
         console.log(error)
@@ -317,49 +303,27 @@ ProductosController.post('/delete-cart', async (req, res) => {
 })
 ProductosController.post('/subtract-product', async (req, res) => {
     try {
-        /* 
-        enviar en este formato
-                {
-                    "productos": [
-                        {
-                            "id": 13, id
-                            "cant":6  cantidad a descontar
-                
-                        }
-                        
-                    ]
-                } */
-        /*   let req.session.cart = [
-              {
-                  "id": 13,
-                  "nombre": "mesa",
-                  "img": "imagen",
-                  "cant": 6,
-                  "precio": 10,
-                  "total": 60
-              }
-          ] */
-        let productos = req.body.productos
 
-        productos.forEach(producto => {
-            if (req.session.cart.find(e => e.id == producto.id)) {
-                req.session.cart.forEach(p => {
-                    if (p.id == producto.id) {
-                        p.cant = p.cant - producto.cant;
-                        p.total = p.total - (p.cant * p.precio)
+        let id = req.body.id;
+        let cart = req.body.cart;
+        if (cart.find(e => e.id == id)) {
+            cart.forEach(p => {
+                if (p.id == id) {
+                    p.cant = p.cant - 1;
+                    p.total = p.total - p.precio
 
-                        //si es 0 quitar producto
-                        if (p.cant == 0) {
-                            req.session.cart = req.session.cart.filter(function (p) {
-                                return p.id !== producto.id;
-                            });
-                        }
+                    //si es 0 quitar producto
+                    if (p.cant == 0) {
+                        cart = cart.filter(function (p) {
+                            return p.id !== id;
+                        });
                     }
-                })
-            }
-        })
-        console.log(req.session.cart)
-        res.json(req.session.cart);
+                }
+            })
+        }
+
+        console.log(cart)
+        res.json({ cart: cart });
     } catch (error) {
         console.log(error)
         res.json(error)
@@ -367,48 +331,28 @@ ProductosController.post('/subtract-product', async (req, res) => {
 })
 ProductosController.post('/add-product', async (req, res) => {
     try {
-        /*  let req.session.cart = [
-             {
-                 "id": 13,
-                 "nombre": "mesa",
-                 "img": "imagen",
-                 "cant": 6,
-                 "precio": 10,
-                 "total": 60
-             }
-         ] */
-        let productos = req.body.productos
 
-        productos.forEach(producto => {
+        let id = req.body.id;
+        let cart = req.body.cart;
+        let prod = await db.Productos.findByPk(id)
 
-            console.log(producto)
 
-            if (req.session.cart.find(e => e.id == producto.id)) {
-                req.session.cart.forEach(p => {
-                    if (p.id == producto.id) {
-                        p.cant = p.cant + producto.cant;
-                        p.total = p.total + (p.cant * p.precio)
-                    }
-                })
-            }
-        })
-        console.log(req.session.cart)
-        res.json(req.session.cart);
+        if (cart.find(e => e.id == id)) {
+            cart.forEach(p => {
+                if (p.id == id ) {
+                    p.cant = p.cant + 1;
+                    p.total = p.total + p.precio
+                }
+            })
+        }
+
+        console.log(cart)
+        res.json({ cart: cart });
     } catch (error) {
         console.log(error)
         res.json(error)
     }
 })
-
-ProductosController.get('/prueba', async (req, res) => {
-    try {
-        res.json(req.session.cart);
-    } catch (error) {
-        console.log(error)
-        res.json(error)
-    }
-})
-
 
 function generate_code() {
     var caracteres = "12346789";//rango de caracteres

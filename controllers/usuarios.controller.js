@@ -75,7 +75,8 @@ UsuariosController.post('/login', async (req, res) => {
                 }
             });
             if (updateResult) {
-                return res.json({ success: true, response: 'Exito', token: jwt2, exp: exp });
+
+                return res.json({ success: true, response: 'Exito', token: jwt2, exp: exp, id: model.id, email: model.correo, rol: model.rol });
             }
         } else {
             res.status(404).json({ success: false, mensaje: "Usuario no encontrado" })
