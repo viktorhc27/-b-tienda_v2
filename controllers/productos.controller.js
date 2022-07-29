@@ -339,7 +339,7 @@ ProductosController.post('/add-product', async (req, res) => {
 
         if (cart.find(e => e.id == id)) {
             cart.forEach(p => {
-                if (p.id == id ) {
+                if (p.id == id) {
                     p.cant = p.cant + 1;
                     p.total = p.total + p.precio
                 }
@@ -348,6 +348,27 @@ ProductosController.post('/add-product', async (req, res) => {
 
         console.log(cart)
         res.json({ cart: cart });
+    } catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+})
+
+ProductosController.get('/search/:nombre/:limit', async (req, res) => {
+    try {
+        //limitar a :limit
+        let nombre = req.params.nombre
+        let limit = req.params.limit
+        let result = await db.Productos.findAll({
+            where: {
+                nombre: {
+                    [Op.like]: '%' + nombre + '%'
+                }
+            }
+        })
+
+        res.json({ productos: result })
+
     } catch (error) {
         console.log(error)
         res.json(error)
