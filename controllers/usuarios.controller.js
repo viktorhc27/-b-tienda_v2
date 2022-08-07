@@ -91,8 +91,10 @@ UsuariosController.post('/login', async (req, res) => {
 UsuariosController.get('/islogged', async (req, res) => {
     try {
         let token = req.header('Authorization');
+        console.log(token);
 
         let validator = await checkToken(token)
+
         if (!validator.success) {
 
             res.status(500).json({ success: false, message: "no tiene autorizacion" })

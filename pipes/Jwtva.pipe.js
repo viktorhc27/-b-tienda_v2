@@ -9,21 +9,23 @@ async function checkToken(token) {
 
         let key = 'jwt_data_keyCR1542';
 
-
-        decode = jwt.decode(token, key, 'HS256');
-
-        let model = await db.Usuarios.findOne({
-            where: {
-                id: decode.data.id
+        let model
+        decode = jwt.decode(token, key, 'HS256')
+        /* console.log(decode.hasOwnProperty('data')); */
+        if (decode.hasOwnProperty('data')) {
+            model = await db.Usuarios.findOne({
+                where: {
+                    id: decode.data.id
+                }
+            })
+            if (decode.exp > time) {
+                return { success: true, model: model };
             }
-        })
-
-        if (decode.exp > time) {
-            return { success: true, model: model };
         } else {
             
             return { success: false, response: 'No tiene permisos para esta función.' }
         }
+
 
     } catch (error) {
 
